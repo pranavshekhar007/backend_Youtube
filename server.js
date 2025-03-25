@@ -39,7 +39,7 @@ const __dirname = path.dirname(__filename);
 
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-app.get("/", (req, res) => res.send(`Server listing on port ${PORT}`));
+app.get("/", (req, res) => res.send(`Backend is live on port ${PORT}`));
 app.use("/api/auth", auth);
 app.use("/api/users", users);
 app.use("/api/videos", videos);
