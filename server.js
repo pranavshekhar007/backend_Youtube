@@ -32,8 +32,13 @@ app.use(
   cors({
     origin: FRONTEND_URL,
     credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE"], // Allowed methods
+    allowedHeaders: ["Content-Type", "Authorization"], // Allowed headers
   })
 );
+
+// ✅ Fix Preflight Requests for CORS
+app.options("*", cors()); // Handles preflight requests for all routes
 
 app.use(express.json());
 app.use(cookieParser());
