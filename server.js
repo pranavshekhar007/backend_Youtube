@@ -14,8 +14,11 @@ import { fileURLToPath } from "url";
 dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 7071;
-const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
-const BACKEND_URL = process.env.BACKEND_URL || `http://localhost:${PORT}`;
+const FRONTEND_URLS = [
+  "http://localhost:5173", // Localhost for development
+  "https://youtube-deploy-1fee.vercel.app", // Deployed frontend
+];
+
 
 mongoose
   .connect(process.env.MONGO)
@@ -27,13 +30,19 @@ mongoose
   });
 
 
-// CORS Configuration
+// ✅ Fix CORS: Allow both localhost and deployed frontend
 app.use(
   cors({
-    origin: FRONTEND_URL,
+    origin: function (origin, callback) {
+      if (!origin || FRONTEND_URLS.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("CORS Not Allowed"));
+      }
+    },
     credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE"], // Allowed methods
-    allowedHeaders: ["Content-Type", "Authorization"], // Allowed headers
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 
@@ -48,7 +57,7 @@ const __dirname = path.dirname(__filename);
 
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-app.get("/", (req, res) => res.send(` Backend is live on ${BACKEND_URL}`));
+app.get("/", (req, res) => res.send(` Backend is live on ${PORT}`));
 app.use("/api/auth", auth);
 app.use("/api/users", users);
 app.use("/api/videos", videos);
@@ -66,5 +75,5 @@ app.use((err, req, res, next) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${BACKEND_URL}`);
+  console.log(`Server is running on port ${process.env.PORT}`);
 });
