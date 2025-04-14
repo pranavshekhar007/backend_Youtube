@@ -31,9 +31,11 @@ export const signin = async (req, res, next) => {
         const token = jwt.sign({id:user._id}, process.env.JWT)
         const {password, ...others} = user._doc;
 
-        res.cookie("access_token", token,{
-            httpOnly:true
-        })
+        res.cookie("access_token", token, {
+          httpOnly: true,
+          secure: true,           // ⬅️ Required for HTTPS (Vercel)
+          sameSite: "None",       // ⬅️ Required for cross-site cookies
+        })        
         .status(200)
         .json(others);
     }catch(err){
@@ -47,10 +49,11 @@ export const googleAuth = async (req, res, next) => {
       const user = await User.findOne({ email: req.body.email });
       if (user) {
         const token = jwt.sign({ id: user._id }, process.env.JWT);
-        res
-          .cookie("access_token", token, {
-            httpOnly: true,
-          })
+        res.cookie("access_token", token, {
+          httpOnly: true,
+          secure: true,           // ⬅️ Required for HTTPS (Vercel)
+          sameSite: "None",       // ⬅️ Required for cross-site cookies
+        })        
           .status(200)
           .json(user._doc);
       } else {
